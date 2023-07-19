@@ -2,12 +2,21 @@ pipeline {
   environment {
     dockerimagename = "valdem88/myapp"
     dockerImage = ""
+    
   }
   agent any
   stages {
     stage('Checkout Source') {
       steps {
         git branch: 'main', url: 'https://github.com/Valdem88/myapp.git'
+      }
+    }
+    stage('Checkout tag') {
+      steps{
+        script {
+          gitTag=sh(returnStdout: true, script: "git describe --tags --abbrev=0").trim()
+          echo "gitTag output: ${gitTag}"
+        }
       }
     }
     stage('Build image') {
@@ -17,24 +26,17 @@ pipeline {
         }
       }
     }
-    stage('Pushing Image') {
+    stage('Pushing Image:tags') {
       environment {
                registryCredential = 'dockerhub-credentials'
            }
       steps{
         script {
           docker.withRegistry( 'https://index.docker.io/v1/', registryCredential ) {
-            dockerImage.push("latest")
+            dockerImage.push("${gitTag}")
           }
         }
       }
     }
-    stage('Deploying myapp-deploy to Kubernetes') {
-      steps {
-        script {
-          kubernetesDeploy (configs:'myapp-deploy.yml', kubeconfigId:'k8s-credentials' )
-        }
-      }
-    }
-  }
-}
+  }    
+}    
