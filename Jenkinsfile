@@ -39,5 +39,23 @@ pipeline {
         }
       }
     }
+    stage('sed env') {
+      environment {
+              envTag = ("${gitTag}")
+           }    
+      steps{
+        script {
+          sh "sed -i \'18,22 s/gitTag/\'$envTag\'/g\' myapp-deploy.yml"
+          sh 'cat myapp-deploy.yml'
+        }
+      }
+    }
+    stage('Deploying myapp-deploy to Kubernetes') {
+      steps {
+        script {
+          kubernetesDeploy (configs:'myapp-deploy.yml', kubeconfigId:'k8s-credentials' )
+        }
+      }
+    }
   }    
 }    
