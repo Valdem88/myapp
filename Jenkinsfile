@@ -14,7 +14,8 @@ pipeline {
     stage('Checkout tag') {
       steps{
         script {
-          gitTag=sh(returnStdout: true, script: "git describe --tags --abbrev=0").trim()
+          sh 'git fetch'
+          gitTag=sh(returnStdout:  true, script: "git tag --sort=-creatordate | head -n 1").trim()
           echo "gitTag output: ${gitTag}"
         }
       }
