@@ -17,7 +17,7 @@ spec:
         app: app-web
     spec:
       containers:
-        - image: valdem88/myapp:1.0.1
+        - image: valdem88/myapp:${gitTag}
           imagePullPolicy: IfNotPresent
           name: app-web
       terminationGracePeriodSeconds: 30
